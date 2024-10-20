@@ -1,0 +1,9 @@
+-Create database for each scale in databases
+-Create all tables
+-Generate data for each scale in generated_data
+-Run modify_encoding to fix customer.dat
+-Run loadtest.py
+
+-> time for running: 48.9s
+
+

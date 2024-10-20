@@ -4,10 +4,10 @@ import time
 
 # specify the scale factor
 sc = 1
-con = duckdb.connect(f'../../created_db/scale_{sc}.db')
+con = duckdb.connect(f'../databases/scale_{sc}')
 
 # specify the path for dataset
-csv_folder_name = f'../../generated_data/scale_{sc}'
+csv_folder_name = f'../generated_data/scale_{sc}'
 csv_list = os.listdir(csv_folder_name)
 
 # set the timer start
