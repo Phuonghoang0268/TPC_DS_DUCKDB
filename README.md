@@ -77,4 +77,4 @@ python maintenance_test.py --scale 1 --test 1
 ```
 
 ### Notes
-If you are running the test again for the same scale multiple time, run the <code>drop_mnt_tables.py</code> to clear out the tables and views created in previous runs.
+If you are running the test for the same scale multiple times, run the <code>drop_mnt_tables.py</code> script to clear out the tables and views created in previous runs.
