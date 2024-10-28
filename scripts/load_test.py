@@ -1,23 +1,29 @@
+import argparse
 import duckdb
+from time import time
 import os
-import time
 
-# specify the scale factor
-sc = 1
-con = duckdb.connect(f'../databases/scale_{sc}')
+parser = argparse.ArgumentParser(description="TPC-DS Database Load test")
+parser.add_argument('--scale', '-s', help="Scale factor (1, 1.5, 2, 3)", required=True, choices=['1', '1.5', '2', '3'])
+scale = parser.parse_args().scale
 
-# specify the path for dataset
-csv_folder_name = f'../generated_data/scale_{sc}'
-csv_list = os.listdir(csv_folder_name)
+connection = duckdb.connect(f'../databases/sc_{scale}.db')
+data_path = f'../generated_data/scale_{scale}'
+data_files = os.listdir(data_path)
 
-# set the timer start
-start_time = time.time()
-for csv_file in csv_list:
-    table_name = csv_file[:-4]
-    # load data into tables
-    copy_command = f"COPY {table_name} FROM '{csv_folder_name}/{csv_file}' (DELIMITER '|')"
-    con.sql(copy_command)
-# set the timer end
-end_time = time.time()
-time_taken = end_time - start_time
-print(time_taken)
+print(f'Executing the Database Load Test for scale {scale}')
+start = time()
+for file in data_files:
+    if file.endswith('.dat'):
+        table = file[:-4]
+        query = f"COPY {table} FROM '{data_path}/{file}'"
+        print(f'\tQuery: {query}')
+        connection.sql(query)
+end = time()
+
+outfile = f'../results/load_test_s{scale}.txt'
+output = open(outfile, 'w')
+output.write(str(end - start))
+output.close()
+print(f'\nDatabase load test for scale {scale} completed. Elapsed time: {end - start} seconds')
+print(f'Results are stored in ../results/load_test_s{scale}.txt')
