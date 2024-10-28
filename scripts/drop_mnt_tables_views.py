@@ -1,6 +1,11 @@
+import argparse
 import duckdb
 
-connection = duckdb.connect('../databases/sc_1.db')
+parser = argparse.ArgumentParser(description="Helper script to clear database for Data Maintenance test")
+parser.add_argument('--scale', '-s', help="Scale factor (1, 1.5, 2, 3)", required=True, choices=['1', '1.5', '2', '3'])
+scale = parser.parse_args().scale
+
+connection = duckdb.connect(f'../databases/sc_{scale}.db')
 
 tables = ['s_catalog_order',
             's_catalog_order_lineitem',
