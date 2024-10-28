@@ -3,7 +3,7 @@ import duckdb
 import os
 import fnmatch
 from time import time
-import pandas as pd
+import csv
 
 parser = argparse.ArgumentParser(description="TPC-DS Database Power test")
 parser.add_argument('--scale', '-s', help="Scale factor (1, 1.5, 2, 3)", required=True, choices=['1', '1.5', '2', '3'])
@@ -55,13 +55,16 @@ elapsed_time = end_time - start_time
 print(f'\n\tTotal execution time: {elapsed_time:.4f} seconds')
 
 # Save query execution times to a csv file
+outfile = open(f'../results/power_s{scale}.csv', 'w')
+writer = csv.writer(outfile)
+writer.writerow(['Query', 'Execution Time'])
+for query, t in query_times.items():
+    writer.writerow([query, t])
+outfile.close()
 
-results_folder = f'../power_test_result/scale_{scale}'
-if not os.path.exists(results_folder):
-    os.makedirs(results_folder)
-csv_path = os.path.join(results_folder, 'query_execution_times.csv')
-df = pd.DataFrame(list(query_times.items()), columns=['Query', 'Execution Time'])
-df.to_csv(csv_path, index=False)
+print(f'\nPower test for scale {scale} completed')
+print(f'Query execution times are stored in ../results/power_s{scale}.csv')
+
 # Close the database connection
 con.close()
 print('Closed database connection')
