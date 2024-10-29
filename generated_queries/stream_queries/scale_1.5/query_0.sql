@@ -4748,7 +4748,7 @@ with ssr as
  (select cp_catalog_page_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  cs_catalog_page_sk as page_sk,
