@@ -3746,7 +3746,7 @@ with ss as
  ,
  sr as
  (select s_store_sk,
-         sum(sr_return_amt) as returns,
+         sum(sr_return_amt) as returns_alt,
          sum(sr_net_loss) as profit_loss
  from store_returns,
       date_dim,
@@ -3769,7 +3769,7 @@ with ss as
  ), 
  cr as
  (select cr_call_center_sk,
-         sum(cr_return_amount) as returns,
+         sum(cr_return_amount) as returns_alt,
          sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
@@ -3792,7 +3792,7 @@ with ss as
  group by wp_web_page_sk), 
  wr as
  (select wp_web_page_sk,
-        sum(wr_return_amt) as returns,
+        sum(wr_return_amt) as returns_alt,
         sum(wr_net_loss) as profit_loss
  from web_returns,
       date_dim,
@@ -4717,7 +4717,7 @@ with ssr as
  (select s_store_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  ss_store_sk as store_sk,
@@ -4748,7 +4748,7 @@ with ssr as
  (select cp_catalog_page_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  cs_catalog_page_sk as page_sk,
