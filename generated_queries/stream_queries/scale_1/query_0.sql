@@ -260,7 +260,7 @@ group by web_site_id)
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns_alt
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
@@ -300,7 +300,7 @@ where
 i_manufact_id = 283
 and i_item_sk = cs_item_sk 
 and d_date between '1999-02-22' and 
-        (cast('1999-02-22' as date) + 90 days)
+        (cast('1999-02-22' as date) + interval '90 days')
 and d_date_sk = cs_sold_date_sk 
 and cs_ext_discount_amt  
      > ( 
@@ -312,7 +312,7 @@ and cs_ext_discount_amt
          where 
               cs_item_sk = i_item_sk 
           and d_date between '1999-02-22' and
-                             (cast('1999-02-22' as date) + 90 days)
+                             (cast('1999-02-22' as date) + interval '90 days')
           and d_date_sk = cs_sold_date_sk 
       ) 
 limit 100;
@@ -615,7 +615,7 @@ from
   ,web_site
 where
     d_date between '1999-4-01' and 
-           (cast('1999-4-01' as date) + 60 days)
+           (cast('1999-4-01' as date) + interval '60 days')
 and ws1.ws_ship_date_sk = d_date_sk
 and ws1.ws_ship_addr_sk = ca_address_sk
 and ca_state = 'WI'
@@ -712,7 +712,7 @@ with ss_items as
    and cs_item_rev between 0.9 * ws_item_rev and 1.1 * ws_item_rev
    and ws_item_rev between 0.9 * ss_item_rev and 1.1 * ss_item_rev
    and ws_item_rev between 0.9 * cs_item_rev and 1.1 * cs_item_rev
- order by item_id
+ order by ss_items.item_id
          ,ss_item_rev
  limit 100;
 
@@ -1025,7 +1025,7 @@ from
   ,call_center
 where
     d_date between '1999-5-01' and 
-           (cast('1999-5-01' as date) + 60 days)
+           (cast('1999-5-01' as date) + interval '60 days')
 and cs1.cs_ship_date_sk = d_date_sk
 and cs1.cs_ship_addr_sk = ca_address_sk
 and ca_state = 'ID'
@@ -1309,7 +1309,7 @@ select  i_item_id
  where i_current_price between 26 and 26 + 30
  and inv_item_sk = i_item_sk
  and d_date_sk=inv_date_sk
- and d_date between cast('2001-06-09' as date) and (cast('2001-06-09' as date) +  60 days)
+ and d_date between cast('2001-06-09' as date) and (cast('2001-06-09' as date) + interval '60 days')
  and i_manufact_id in (744,884,722,693)
  and inv_quantity_on_hand between 100 and 500
  and cs_item_sk = i_item_sk
@@ -1981,7 +1981,7 @@ from
   ,web_site
 where
     d_date between '2002-5-01' and 
-           (cast('2002-5-01' as date) + 60 days)
+           (cast('2002-5-01' as date) + interval '60 days')
 and ws1.ws_ship_date_sk = d_date_sk
 and ws1.ws_ship_addr_sk = ca_address_sk
 and ca_state = 'MA'
@@ -2007,7 +2007,7 @@ where
 i_manufact_id = 914
 and i_item_sk = ws_item_sk 
 and d_date between '2001-01-25' and 
-        (cast('2001-01-25' as date) + 90 days)
+        (cast('2001-01-25' as date) + interval '90 days')
 and d_date_sk = ws_sold_date_sk 
 and ws_ext_discount_amt  
      > ( 
@@ -2019,7 +2019,7 @@ and ws_ext_discount_amt
          WHERE 
               ws_item_sk = i_item_sk 
           and d_date between '2001-01-25' and
-                             (cast('2001-01-25' as date) + 90 days)
+                             (cast('2001-01-25' as date) + interval '90 days')
           and d_date_sk = ws_sold_date_sk 
       ) 
 order by sum(ws_ext_discount_amt)
@@ -3074,7 +3074,7 @@ select  i_item_id
  where i_current_price between 69 and 69+30
  and inv_item_sk = i_item_sk
  and d_date_sk=inv_date_sk
- and d_date between cast('1998-06-06' as date) and (cast('1998-06-06' as date) +  60 days)
+ and d_date between cast('1998-06-06' as date) and (cast('1998-06-06' as date) + interval '60 days')
  and i_manufact_id in (105,513,180,137)
  and inv_quantity_on_hand between 100 and 500
  and ss_item_sk = i_item_sk
@@ -3805,13 +3805,13 @@ with ss as
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns_alt
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
         , ss.s_store_sk as id
         , sales
-        , coalesce(returns, 0) as returns_alt
+        , coalesce(returns_alt, 0) as returns_alt
         , (profit - coalesce(profit_loss,0)) as profit
  from   ss left join sr
         on  ss.s_store_sk = sr.s_store_sk
@@ -3827,7 +3827,7 @@ with ss as
  select 'web channel' as channel
         , ws.wp_web_page_sk as id
         , sales
-        , coalesce(returns, 0) returns_alt
+        , coalesce(returns_alt, 0) returns_alt
         , (profit - coalesce(profit_loss,0)) as profit
  from   ws left join wr
         on  ws.wp_web_page_sk = wr.wp_web_page_sk
@@ -4160,7 +4160,7 @@ where d1.d_week_seq = d2.d_week_seq
   and d1.d_year = 1999
   and cd_marital_status = 'S'
 group by i_item_desc,w_warehouse_name,d1.d_week_seq
-order by total_cnt desc, i_item_desc, w_warehouse_name, d_week_seq
+order by total_cnt desc, i_item_desc, w_warehouse_name, d1.d_week_seq
 limit 100;
 
 
@@ -4740,7 +4740,7 @@ with ssr as
      store
  where date_sk = d_date_sk
        and d_date between cast('2001-08-04' as date) 
-                  and (cast('2001-08-04' as date) +  14 days)
+                  and (cast('2001-08-04' as date) +  interval '14 days')
        and store_sk = s_store_sk
  group by s_store_id)
  ,
@@ -4771,7 +4771,7 @@ with ssr as
      catalog_page
  where date_sk = d_date_sk
        and d_date between cast('2001-08-04' as date)
-                  and (cast('2001-08-04' as date) +  14 days)
+                  and (cast('2001-08-04' as date) + interval '14 days')
        and page_sk = cp_catalog_page_sk
  group by cp_catalog_page_id)
  ,
@@ -4804,13 +4804,13 @@ with ssr as
      web_site
  where date_sk = d_date_sk
        and d_date between cast('2001-08-04' as date)
-                  and (cast('2001-08-04' as date) +  14 days)
+                  and (cast('2001-08-04' as date) +  interval '14 days')
        and wsr_web_site_sk = web_site_sk
  group by web_site_id)
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns_alt
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel

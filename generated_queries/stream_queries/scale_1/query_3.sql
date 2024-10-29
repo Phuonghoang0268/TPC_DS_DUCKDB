@@ -31,7 +31,7 @@ with ssr as
  (select s_store_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  ss_store_sk as store_sk,
@@ -54,7 +54,7 @@ with ssr as
      store
  where date_sk = d_date_sk
        and d_date between cast('2002-08-12' as date) 
-                  and (cast('2002-08-12' as date) +  14 days)
+                  and (cast('2002-08-12' as date) +  interval '14 days')
        and store_sk = s_store_sk
  group by s_store_id)
  ,
@@ -62,7 +62,7 @@ with ssr as
  (select cp_catalog_page_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  cs_catalog_page_sk as page_sk,
@@ -85,7 +85,7 @@ with ssr as
      catalog_page
  where date_sk = d_date_sk
        and d_date between cast('2002-08-12' as date)
-                  and (cast('2002-08-12' as date) +  14 days)
+                  and (cast('2002-08-12' as date) +  interval '14 days')
        and page_sk = cp_catalog_page_sk
  group by cp_catalog_page_id)
  ,
@@ -93,7 +93,7 @@ with ssr as
  (select web_site_id,
         sum(sales_price) as sales,
         sum(profit) as profit,
-        sum(return_amt) as returns,
+        sum(return_amt) as returns_alt,
         sum(net_loss) as profit_loss
  from
   ( select  ws_web_site_sk as wsr_web_site_sk,
@@ -118,33 +118,33 @@ with ssr as
      web_site
  where date_sk = d_date_sk
        and d_date between cast('2002-08-12' as date)
-                  and (cast('2002-08-12' as date) +  14 days)
+                  and (cast('2002-08-12' as date) +  interval '14 days')
        and wsr_web_site_sk = web_site_sk
  group by web_site_id)
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
         , 'store' || s_store_id as id
         , sales
-        , returns
+        , returns_alt
         , (profit - profit_loss) as profit
  from   ssr
  union all
  select 'catalog channel' as channel
         , 'catalog_page' || cp_catalog_page_id as id
         , sales
-        , returns
+        , returns_alt
         , (profit - profit_loss) as profit
  from  csr
  union all
  select 'web channel' as channel
         , 'web_site' || web_site_id as id
         , sales
-        , returns
+        , returns_alt
         , (profit - profit_loss) as profit
  from   wsr
  ) x
@@ -318,7 +318,7 @@ order by inv1.w_warehouse_sk,inv1.i_item_sk,inv1.d_moy,inv1.mean,inv1.cov
 with ssr as
  (select  s_store_id as store_id,
           sum(ss_ext_sales_price) as sales,
-          sum(coalesce(sr_return_amt, 0)) as returns,
+          sum(coalesce(sr_return_amt, 0)) as returns_alt,
           sum(ss_net_profit - coalesce(sr_net_loss, 0)) as profit
   from store_sales left outer join store_returns on
          (ss_item_sk = sr_item_sk and ss_ticket_number = sr_ticket_number),
@@ -328,7 +328,7 @@ with ssr as
      promotion
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('1999-08-10' as date) 
-                  and (cast('1999-08-10' as date) +  30 days)
+                  and (cast('1999-08-10' as date) +  interval '30 days')
        and ss_store_sk = s_store_sk
        and ss_item_sk = i_item_sk
        and i_current_price > 50
@@ -339,7 +339,7 @@ with ssr as
  csr as
  (select  cp_catalog_page_id as catalog_page_id,
           sum(cs_ext_sales_price) as sales,
-          sum(coalesce(cr_return_amount, 0)) as returns,
+          sum(coalesce(cr_return_amount, 0)) as returns_alt,
           sum(cs_net_profit - coalesce(cr_net_loss, 0)) as profit
   from catalog_sales left outer join catalog_returns on
          (cs_item_sk = cr_item_sk and cs_order_number = cr_order_number),
@@ -349,7 +349,7 @@ with ssr as
      promotion
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('1999-08-10' as date)
-                  and (cast('1999-08-10' as date) +  30 days)
+                  and (cast('1999-08-10' as date) +  interval '30 days')
         and cs_catalog_page_sk = cp_catalog_page_sk
        and cs_item_sk = i_item_sk
        and i_current_price > 50
@@ -360,7 +360,7 @@ group by cp_catalog_page_id)
  wsr as
  (select  web_site_id,
           sum(ws_ext_sales_price) as sales,
-          sum(coalesce(wr_return_amt, 0)) as returns,
+          sum(coalesce(wr_return_amt, 0)) as returns_alt,
           sum(ws_net_profit - coalesce(wr_net_loss, 0)) as profit
   from web_sales left outer join web_returns on
          (ws_item_sk = wr_item_sk and ws_order_number = wr_order_number),
@@ -370,7 +370,7 @@ group by cp_catalog_page_id)
      promotion
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('1999-08-10' as date)
-                  and (cast('1999-08-10' as date) +  30 days)
+                  and (cast('1999-08-10' as date) +  interval '30 days')
         and ws_web_site_sk = web_site_sk
        and ws_item_sk = i_item_sk
        and i_current_price > 50
@@ -380,27 +380,27 @@ group by web_site_id)
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
         , 'store' || store_id as id
         , sales
-        , returns
+        , returns_alt
         , profit
  from   ssr
  union all
  select 'catalog channel' as channel
         , 'catalog_page' || catalog_page_id as id
         , sales
-        , returns
+        , returns_alt
         , profit
  from  csr
  union all
  select 'web channel' as channel
         , 'web_site' || web_site_id as id
         , sales
-        , returns
+        , returns_alt
         , profit
  from   wsr
  ) x
@@ -464,7 +464,7 @@ where d1.d_week_seq = d2.d_week_seq
   and d1.d_year = 2000
   and cd_marital_status = 'W'
 group by i_item_desc,w_warehouse_name,d1.d_week_seq
-order by total_cnt desc, i_item_desc, w_warehouse_name, d_week_seq
+order by total_cnt desc, i_item_desc, w_warehouse_name, d1.d_week_seq
 limit 100;
 
 
@@ -1238,7 +1238,7 @@ from
   ,web_site
 where
     d_date between '2000-4-01' and 
-           (cast('2000-4-01' as date) + 60 days)
+           (cast('2000-4-01' as date) + interval '60 days')
 and ws1.ws_ship_date_sk = d_date_sk
 and ws1.ws_ship_addr_sk = ca_address_sk
 and ca_state = 'TX'
@@ -1446,7 +1446,7 @@ with ss_items as
    and cs_item_rev between 0.9 * ws_item_rev and 1.1 * ws_item_rev
    and ws_item_rev between 0.9 * ss_item_rev and 1.1 * ss_item_rev
    and ws_item_rev between 0.9 * cs_item_rev and 1.1 * cs_item_rev
- order by item_id
+ order by ss_items.item_id
          ,ss_item_rev
  limit 100;
 
@@ -1489,7 +1489,7 @@ select  i_item_id
  where i_current_price between 64 and 64 + 30
  and inv_item_sk = i_item_sk
  and d_date_sk=inv_date_sk
- and d_date between cast('1999-05-26' as date) and (cast('1999-05-26' as date) +  60 days)
+ and d_date between cast('1999-05-26' as date) and (cast('1999-05-26' as date) + interval '60 days')
  and i_manufact_id in (888,745,693,800)
  and inv_quantity_on_hand between 100 and 500
  and cs_item_sk = i_item_sk
@@ -1972,8 +1972,8 @@ select  *
      and i_item_sk          = inv_item_sk
      and inv_warehouse_sk   = w_warehouse_sk
      and inv_date_sk    = d_date_sk
-     and d_date between (cast ('2000-04-16' as date) - 30 days)
-                    and (cast ('2000-04-16' as date) + 30 days)
+     and d_date between (cast ('2000-04-16' as date) - interval '30 days')
+                    and (cast ('2000-04-16' as date) + interval '30 days')
    group by w_warehouse_name, i_item_id) x
  where (case when inv_before > 0 
              then inv_after / inv_before 
@@ -2160,7 +2160,7 @@ select  i_item_id
  where i_current_price between 17 and 17+30
  and inv_item_sk = i_item_sk
  and d_date_sk=inv_date_sk
- and d_date between cast('2001-05-12' as date) and (cast('2001-05-12' as date) +  60 days)
+ and d_date between cast('2001-05-12' as date) and (cast('2001-05-12' as date) +  interval '60 days')
  and i_manufact_id in (543,730,134,242)
  and inv_quantity_on_hand between 100 and 500
  and ss_item_sk = i_item_sk
@@ -2320,8 +2320,8 @@ select
  and i_item_sk          = cs_item_sk
  and cs_warehouse_sk    = w_warehouse_sk 
  and cs_sold_date_sk    = d_date_sk
- and d_date between (cast ('1999-06-03' as date) - 30 days)
-                and (cast ('1999-06-03' as date) + 30 days) 
+ and d_date between (cast ('1999-06-03' as date) - interval '30 days')
+                and (cast ('1999-06-03' as date) + interval '30 days') 
  group by
     w_state,i_item_id
  order by w_state,i_item_id
@@ -2354,7 +2354,7 @@ from
   ,call_center
 where
     d_date between '2002-3-01' and 
-           (cast('2002-3-01' as date) + 60 days)
+           (cast('2002-3-01' as date) + interval '60 days')
 and cs1.cs_ship_date_sk = d_date_sk
 and cs1.cs_ship_addr_sk = ca_address_sk
 and ca_state = 'SD'
@@ -2485,7 +2485,7 @@ where
 i_manufact_id = 595
 and i_item_sk = ws_item_sk 
 and d_date between '2002-03-13' and 
-        (cast('2002-03-13' as date) + 90 days)
+        (cast('2002-03-13' as date) + interval '90 days')
 and d_date_sk = ws_sold_date_sk 
 and ws_ext_discount_amt  
      > ( 
@@ -2497,7 +2497,7 @@ and ws_ext_discount_amt
          WHERE 
               ws_item_sk = i_item_sk 
           and d_date between '2002-03-13' and
-                             (cast('2002-03-13' as date) + 90 days)
+                             (cast('2002-03-13' as date) + interval '90 days')
           and d_date_sk = ws_sold_date_sk 
       ) 
 order by sum(ws_ext_discount_amt)
@@ -3299,7 +3299,7 @@ from
   ,web_site
 where
     d_date between '2000-5-01' and 
-           (cast('2000-5-01' as date) + 60 days)
+           (cast('2000-5-01' as date) + interval '60 days')
 and ws1.ws_ship_date_sk = d_date_sk
 and ws1.ws_ship_addr_sk = ca_address_sk
 and ca_state = 'AL'
@@ -3332,7 +3332,7 @@ where
   	and i_category in ('Men', 'Sports', 'Electronics')
   	and ws_sold_date_sk = d_date_sk
 	and d_date between cast('2002-06-04' as date) 
-				and (cast('2002-06-04' as date) + 30 days)
+				and (cast('2002-06-04' as date) + interval '30 days')
 group by 
 	i_item_id
         ,i_item_desc 
@@ -3733,7 +3733,7 @@ where
 i_manufact_id = 212
 and i_item_sk = cs_item_sk 
 and d_date between '2000-03-03' and 
-        (cast('2000-03-03' as date) + 90 days)
+        (cast('2000-03-03' as date) + interval '90 days')
 and d_date_sk = cs_sold_date_sk 
 and cs_ext_discount_amt  
      > ( 
@@ -3745,7 +3745,7 @@ and cs_ext_discount_amt
          where 
               cs_item_sk = i_item_sk 
           and d_date between '2000-03-03' and
-                             (cast('2000-03-03' as date) + 90 days)
+                             (cast('2000-03-03' as date) + interval '90 days')
           and d_date_sk = cs_sold_date_sk 
       ) 
 limit 100;
@@ -3925,7 +3925,7 @@ where
   	and i_category in ('Shoes', 'Jewelry', 'Women')
   	and ss_sold_date_sk = d_date_sk
 	and d_date between cast('2000-02-24' as date) 
-				and (cast('2000-02-24' as date) + 30 days)
+				and (cast('2000-02-24' as date) + interval '30 days')
 group by 
 	i_item_id
         ,i_item_desc 
@@ -3950,20 +3950,20 @@ with ss as
       store
  where ss_sold_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date) 
-                  and (cast('2000-08-05' as date) +  30 days) 
+                  and (cast('2000-08-05' as date) +  interval '30 days') 
        and ss_store_sk = s_store_sk
  group by s_store_sk)
  ,
  sr as
  (select s_store_sk,
-         sum(sr_return_amt) as returns,
+         sum(sr_return_amt) as returns_alt,
          sum(sr_net_loss) as profit_loss
  from store_returns,
       date_dim,
       store
  where sr_returned_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date)
-                  and (cast('2000-08-05' as date) +  30 days)
+                  and (cast('2000-08-05' as date) +  interval '30 days')
        and sr_store_sk = s_store_sk
  group by s_store_sk), 
  cs as
@@ -3974,18 +3974,18 @@ with ss as
       date_dim
  where cs_sold_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date)
-                  and (cast('2000-08-05' as date) +  30 days)
+                  and (cast('2000-08-05' as date) + interval '30 days')
  group by cs_call_center_sk 
  ), 
  cr as
  (select cr_call_center_sk,
-         sum(cr_return_amount) as returns,
+         sum(cr_return_amount) as returns_alt,
          sum(cr_net_loss) as profit_loss
  from catalog_returns,
       date_dim
  where cr_returned_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date)
-                  and (cast('2000-08-05' as date) +  30 days)
+                  and (cast('2000-08-05' as date) +  interval '30 days')
  group by cr_call_center_sk
  ), 
  ws as
@@ -3997,31 +3997,31 @@ with ss as
       web_page
  where ws_sold_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date)
-                  and (cast('2000-08-05' as date) +  30 days)
+                  and (cast('2000-08-05' as date) +  interval '30 days')
        and ws_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk), 
  wr as
  (select wp_web_page_sk,
-        sum(wr_return_amt) as returns,
+        sum(wr_return_amt) as returns_alt,
         sum(wr_net_loss) as profit_loss
  from web_returns,
       date_dim,
       web_page
  where wr_returned_date_sk = d_date_sk
        and d_date between cast('2000-08-05' as date)
-                  and (cast('2000-08-05' as date) +  30 days)
+                  and (cast('2000-08-05' as date) +  interval '30 days')
        and wr_web_page_sk = wp_web_page_sk
  group by wp_web_page_sk)
   select  channel
         , id
         , sum(sales) as sales
-        , sum(returns) as returns
+        , sum(returns_alt) as returns_alt
         , sum(profit) as profit
  from 
  (select 'store channel' as channel
         , ss.s_store_sk as id
         , sales
-        , coalesce(returns, 0) as returns
+        , coalesce(returns_alt, 0) as returns_alt
         , (profit - coalesce(profit_loss,0)) as profit
  from   ss left join sr
         on  ss.s_store_sk = sr.s_store_sk
@@ -4029,7 +4029,7 @@ with ss as
  select 'catalog channel' as channel
         , cs_call_center_sk as id
         , sales
-        , returns
+        , returns_alt
         , (profit - profit_loss) as profit
  from  cs
        , cr
@@ -4037,7 +4037,7 @@ with ss as
  select 'web channel' as channel
         , ws.wp_web_page_sk as id
         , sales
-        , coalesce(returns, 0) returns
+        , coalesce(returns_alt, 0) returns_alt
         , (profit - coalesce(profit_loss,0)) as profit
  from   ws left join wr
         on  ws.wp_web_page_sk = wr.wp_web_page_sk
@@ -4084,7 +4084,7 @@ select  i_item_id
    and i_category in ('Sports', 'Electronics', 'Children')
    and cs_sold_date_sk = d_date_sk
  and d_date between cast('1998-04-05' as date) 
- 				and (cast('1998-04-05' as date) + 30 days)
+ 				and (cast('1998-04-05' as date) + interval '30 days')
  group by i_item_id
          ,i_item_desc 
          ,i_category
