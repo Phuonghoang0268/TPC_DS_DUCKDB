@@ -39,7 +39,7 @@ def execute(scale, test, run, connection):
     start_time = time()
     for query in queries:
         print(f'\tQuery: {query}')
-        # connection.sql(query)
+        connection.sql(query)
     end_time = time()
     print(f'\n\tExecution time: {end_time - start_time} seconds')
     return end_time - start_time
