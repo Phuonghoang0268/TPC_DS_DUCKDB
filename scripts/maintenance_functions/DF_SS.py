@@ -32,8 +32,8 @@ def execute(scale, test, run, connection):
     with open(flatfile, 'r') as file:
         for line in file:
             date_1, date_2, _ = line.strip().split('|')
-            query_1 = f'DELETE FROM store_returns WHERE sr_ticket_number IN (SELECT ss_ticket_number FROM store_sales WHERE ss_sold_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN {date_1} AND {date_2}));'
-            query_2 = f'DELETE FROM store_sales WHERE ss_sold_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN {date_1} AND {date_2});'
+            query_1 = f"DELETE FROM store_returns WHERE sr_ticket_number IN (SELECT ss_ticket_number FROM store_sales WHERE ss_sold_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN CAST('{date_1}' AS DATE) AND CAST('{date_2}' AS DATE)));"
+            query_2 = f"DELETE FROM store_sales WHERE ss_sold_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN CAST('{date_1}' AS DATE) AND CAST('{date_2}' AS DATE));"
             queries.append(query_1)
             queries.append(query_2)
     start_time = time()

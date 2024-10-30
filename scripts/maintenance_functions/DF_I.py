@@ -20,7 +20,7 @@ def execute(scale, test, run, connection):
     with open(flatfile, 'r') as file:
         for line in file:
             date_1, date_2, _ = line.strip().split('|')
-            query = f'DELETE FROM inventory WHERE inv_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN {date_1} AND {date_2});'
+            query = f"DELETE FROM inventory WHERE inv_date_sk IN (SELECT d_date_sk FROM date_dim WHERE d_date BETWEEN CAST('{date_1}' AS DATE) AND CAST('{date_2}' AS DATE));"
             queries.append(query)
         start_time = time()
     for query in queries:
