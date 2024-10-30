@@ -42,6 +42,3 @@ def execute(scale, test, run, connection):
     end_time = time()
     print(f'\n\tExecution time: {end_time - start_time} seconds')
     return end_time - start_time
-
-def tmp():
-    print('This is DF_CS')
