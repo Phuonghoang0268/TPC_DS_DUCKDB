@@ -52,5 +52,6 @@ python modify_encoding.py --scale $scale
 ### Running the Benchmark
 The execution.sh script, located in the scripts folder, automates all benchmark tests (load, power, throughput, and maintenance). Run it as follows:
 ```bash
-bash scripts/execution.sh $scale
+cd scripts
+bash execution.sh $scale
 ```
