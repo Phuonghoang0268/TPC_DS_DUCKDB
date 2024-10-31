@@ -41,6 +41,12 @@ python modify_encoding.py --scale $scale
 - Split queries using python scripts code/split.py
 - Modify Queries
   
+### Stream Generation
+-Go to tpcds-kit/tools folder and run the command to generate stream:
+```bash
+./dsqgen -directory "../query_templates/" -input "../query_templates/templates.lst" -dialect netezza -scale [scale] -streams 4 -output_dir "../generated_queries/stream_queries/scale_[scale]"
+```
+
 #### Note: In our repository, separated and modified queries for each scale are already available.
 
 ### Running the Benchmark
