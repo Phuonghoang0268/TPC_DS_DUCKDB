@@ -29,6 +29,14 @@ In this project, we implement the TPC-DS Benchmark on the DuckDB Database Manage
 ```bash
 python modify_encoding.py --scale $scale
 ```
+### Refresh Data Generation
+- Go to tpcds-kit/tools folder and run the command to generate refresh data:
+```bash
+./dsdgen -scale [scale] -dir "../../refresh_data/scale_[scale]/stream_1" -update 1
+./dsdgen -scale [scale] -dir "../../refresh_data/scale_[scale]/stream_2" -update 2
+./dsdgen -scale [scale] -dir "../../refresh_data/scale_[scale]/stream_3" -update 3
+./dsdgen -scale [scale] -dir "../../refresh_data/scale_[scale]/stream_4" -update 4
+```
 
 ### Query Generation
 - Go to  tpcds-kit/tools folder and run the command to generate query:
